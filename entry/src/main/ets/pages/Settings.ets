@@ -59,95 +59,99 @@ struct Settings {
   };
 
   build() {
-    Flex({
-      direction: FlexDirection.Column,
-      alignItems: ItemAlign.Stretch,
-      justifyContent: FlexAlign.Start
-    }) {
-      // 顶部导航栏
-      Row({
-        alignItems: ItemAlign.Center,
-        justifyContent: FlexAlign.SpaceBetween
-      }) {
-        Text('设置')
-          .fontSize(18)
-          .fontWeight(FontWeight.Bold)
-          .textColor('#1a365d');
-        Button('返回')
-          .fontSize(14)
-          .width(60)
-          .height(32)
-          .backgroundColor('#3182ce')
-          .borderRadius(8)
-          .onClick(() => {
-            router.push({
-              uri: 'pages/Index'
-            });
-          });
-      }
-      .padding(16)
-      .backgroundColor('#f7fafc');
-
-      // 标签页切换
-      Row({
-        alignItems: ItemAlign.Center,
+    Stack() {
+      Flex({
+        direction: FlexDirection.Column,
+        alignItems: ItemAlign.Stretch,
         justifyContent: FlexAlign.Start
       }) {
-        Button('参数配置')
-          .fontSize(14)
-          .width(100)
-          .height(36)
-          .backgroundColor(this.selectedTab === 'params' ? '#3182ce' : '#e2e8f0')
-          .textColor(this.selectedTab === 'params' ? '#ffffff' : '#4a5568')
-          .borderRadius(8)
-          .onClick(() => {
-            this.selectedTab = 'params';
-          });
-        Button('产品管理')
-          .fontSize(14)
-          .width(100)
-          .height(36)
-          .backgroundColor(this.selectedTab === 'products' ? '#3182ce' : '#e2e8f0')
-          .textColor(this.selectedTab === 'products' ? '#ffffff' : '#4a5568')
-          .borderRadius(8)
-          .marginLeft(12)
-          .onClick(() => {
-            this.selectedTab = 'products';
-          });
-      }
-      .padding(16)
-      .backgroundColor('#ffffff');
+        // 顶部导航栏
+        Row({
+          alignItems: ItemAlign.Center,
+          justifyContent: FlexAlign.SpaceBetween
+        }) {
+          Text('设置')
+            .fontSize(18)
+            .fontWeight(FontWeight.Bold)
+            .textColor('#1a365d');
+          Button('返回')
+            .fontSize(14)
+            .width(60)
+            .height(32)
+            .backgroundColor('#3182ce')
+            .borderRadius(8)
+            .onClick(() => {
+              router.push({
+                uri: 'pages/Index'
+              });
+            });
+        }
+        .padding(16)
+        .backgroundColor('#f7fafc');
 
-      // 内容区域
-      if (this.selectedTab === 'params') {
-        this.ParamsConfig();
-      } else if (this.selectedTab === 'products') {
-        this.ProductManagement();
-      }
+        // 标签页切换
+        Row({
+          alignItems: ItemAlign.Center,
+          justifyContent: FlexAlign.Start
+        }) {
+          Button('参数配置')
+            .fontSize(14)
+            .width(100)
+            .height(36)
+            .backgroundColor(this.selectedTab === 'params' ? '#3182ce' : '#e2e8f0')
+            .textColor(this.selectedTab === 'params' ? '#ffffff' : '#4a5568')
+            .borderRadius(8)
+            .onClick(() => {
+              this.selectedTab = 'params';
+            });
+          Button('产品管理')
+            .fontSize(14)
+            .width(100)
+            .height(36)
+            .backgroundColor(this.selectedTab === 'products' ? '#3182ce' : '#e2e8f0')
+            .textColor(this.selectedTab === 'products' ? '#ffffff' : '#4a5568')
+            .borderRadius(8)
+            .marginLeft(12)
+            .onClick(() => {
+              this.selectedTab = 'products';
+            });
+        }
+        .padding(16)
+        .backgroundColor('#ffffff');
 
-      // 底部按钮
-      Row({
-        alignItems: ItemAlign.Center,
-        justifyContent: FlexAlign.End
-      }) {
-        Button('保存设置')
-          .fontSize(14)
-          .width(100)
-          .height(36)
-          .backgroundColor('#38a169')
-          .borderRadius(8);
+        // 内容区域
+        if (this.selectedTab === 'params') {
+          this.ParamsConfig();
+        } else if (this.selectedTab === 'products') {
+          this.ProductManagement();
+        }
+
+        // 底部按钮
+        Row({
+          alignItems: ItemAlign.Center,
+          justifyContent: FlexAlign.End
+        }) {
+          Button('保存设置')
+            .fontSize(14)
+            .width(100)
+            .height(36)
+            .backgroundColor('#38a169')
+            .borderRadius(8);
+        }
+        .padding(16)
+        .backgroundColor('#f7fafc');
       }
-      .padding(16)
-      .backgroundColor('#f7fafc');
+      .height('100%')
+      .width('100%')
+      .backgroundColor('#edf2f7');
+
+      // 添加产品对话框
+      if (this.showAddProductDialog) {
+        this.AddProductDialog();
+      }
     }
     .height('100%')
-    .width('100%')
-    .backgroundColor('#edf2f7');
-
-    // 添加产品对话框
-    if (this.showAddProductDialog) {
-      this.AddProductDialog();
-    }
+    .width('100%');
   }
 
   // 参数配置页面
