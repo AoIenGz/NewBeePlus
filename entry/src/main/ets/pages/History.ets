@@ -1,26 +1,11 @@
 import router from '@ohos.router';
+import { DetectionRecord, SearchParams } from '../common/Interfaces';
 
 @Entry
 @Component
 struct History {
   @State selectedTab: string = 'records';
-  @State detectionRecords: Array<{
-    id: string;
-    timestamp: string;
-    productModel: string;
-    energyEfficiency: string;
-    isDataMatch: boolean;
-    defects: {
-      isDamaged: boolean;
-      isStained: boolean;
-      isWrinkled: boolean;
-    };
-    position: {
-      isCorrect: boolean;
-      deviation: number;
-    };
-    isPass: boolean;
-  }> = [
+  @State detectionRecords: Array<DetectionRecord> = [
     {
       id: '1',
       timestamp: '2026-04-05 10:30:45',
@@ -107,12 +92,7 @@ struct History {
       isPass: false,
     },
   ];
-  @State searchParams: {
-    productModel: string;
-    startDate: string;
-    endDate: string;
-    status: string;
-  } = {
+  @State searchParams: SearchParams = {
     productModel: '',
     startDate: '2026-04-05',
     endDate: '2026-04-05',
@@ -124,20 +104,12 @@ struct History {
 
   build() {
     Stack() {
-      Flex({
-        direction: FlexDirection.Column,
-        alignItems: ItemAlign.Stretch,
-        justifyContent: FlexAlign.Start
-      }) {
-        // 顶部导航栏
-        Row({
-          alignItems: ItemAlign.Center,
-          justifyContent: FlexAlign.SpaceBetween
-        }) {
+      Column() {
+        Row() {
           Text('历史记录')
             .fontSize(18)
             .fontWeight(FontWeight.Bold)
-            .textColor('#1a365d');
+            .fontColor('#1a365d');
           Button('返回')
             .fontSize(14)
             .width(60)
@@ -145,25 +117,23 @@ struct History {
             .backgroundColor('#3182ce')
             .borderRadius(8)
             .onClick(() => {
-              router.push({
-                uri: 'pages/Index'
+              router.pushUrl({
+                url: 'pages/Index'
               });
             });
         }
+        .width('100%')
+        .justifyContent(FlexAlign.SpaceBetween)
         .padding(16)
         .backgroundColor('#f7fafc');
 
-        // 标签页切换
-        Row({
-          alignItems: ItemAlign.Center,
-          justifyContent: FlexAlign.Start
-        }) {
+        Row() {
           Button('检测记录')
             .fontSize(14)
             .width(100)
             .height(36)
             .backgroundColor(this.selectedTab === 'records' ? '#3182ce' : '#e2e8f0')
-            .textColor(this.selectedTab === 'records' ? '#ffffff' : '#4a5568')
+            .fontColor(this.selectedTab === 'records' ? '#ffffff' : '#4a5568')
             .borderRadius(8)
             .onClick(() => {
               this.selectedTab = 'records';
@@ -173,28 +143,25 @@ struct History {
             .width(100)
             .height(36)
             .backgroundColor(this.selectedTab === 'analytics' ? '#3182ce' : '#e2e8f0')
-            .textColor(this.selectedTab === 'analytics' ? '#ffffff' : '#4a5568')
+            .fontColor(this.selectedTab === 'analytics' ? '#ffffff' : '#4a5568')
             .borderRadius(8)
-            .marginLeft(12)
+            .margin({ left: 12 })
             .onClick(() => {
               this.selectedTab = 'analytics';
             });
         }
+        .width('100%')
+        .justifyContent(FlexAlign.Start)
         .padding(16)
         .backgroundColor('#ffffff');
 
-        // 内容区域
         if (this.selectedTab === 'records') {
           this.RecordsView();
         } else if (this.selectedTab === 'analytics') {
           this.AnalyticsView();
         }
 
-        // 底部按钮
-        Row({
-          alignItems: ItemAlign.Center,
-          justifyContent: FlexAlign.End
-        }) {
+        Row() {
           Button('导出报告')
             .fontSize(14)
             .width(100)
@@ -205,6 +172,8 @@ struct History {
               this.showExportDialog = true;
             });
         }
+        .width('100%')
+        .justifyContent(FlexAlign.End)
         .padding(16)
         .backgroundColor('#f7fafc');
       }
@@ -212,7 +181,6 @@ struct History {
       .width('100%')
       .backgroundColor('#edf2f7');
 
-      // 导出报告对话框
       if (this.showExportDialog) {
         this.ExportDialog();
       }
@@ -221,35 +189,21 @@ struct History {
     .width('100%');
   }
 
-  // 检测记录页面
   @Builder RecordsView() {
-    Column({
-      alignItems: ItemAlign.Stretch,
-      justifyContent: FlexAlign.Start
-    }) {
-      // 搜索和过滤
-      Column({
-        alignItems: ItemAlign.Stretch,
-        justifyContent: FlexAlign.Start
-      }) {
+    Column() {
+      Column() {
         Text('搜索和过滤')
           .fontSize(16)
-          .fontWeight(FontWeight.SemiBold)
-          .textColor('#1a365d')
-          .marginBottom(16);
+          .fontWeight(FontWeight.Medium)
+          .fontColor('#1a365d')
+          .margin({ bottom: 16 });
 
-        Row({
-          alignItems: ItemAlign.Center,
-          justifyContent: FlexAlign.SpaceBetween
-        }) {
-          Column({
-            alignItems: ItemAlign.Start,
-            justifyContent: FlexAlign.Start
-          }) {
+        Row() {
+          Column() {
             Text('产品型号')
               .fontSize(14)
-              .textColor('#4a5568')
-              .marginBottom(8);
+              .fontColor('#4a5568')
+              .margin({ bottom: 8 });
             TextInput({
               text: this.searchParams.productModel,
               placeholder: '请输入产品型号'
@@ -263,14 +217,12 @@ struct History {
                 this.searchParams.productModel = value;
               });
           }
-          Column({
-            alignItems: ItemAlign.Start,
-            justifyContent: FlexAlign.Start
-          }) {
+          .alignItems(HorizontalAlign.Start);
+          Column() {
             Text('开始日期')
               .fontSize(14)
-              .textColor('#4a5568')
-              .marginBottom(8);
+              .fontColor('#4a5568')
+              .margin({ bottom: 8 });
             TextInput({
               text: this.searchParams.startDate,
               placeholder: 'YYYY-MM-DD'
@@ -284,14 +236,12 @@ struct History {
                 this.searchParams.startDate = value;
               });
           }
-          Column({
-            alignItems: ItemAlign.Start,
-            justifyContent: FlexAlign.Start
-          }) {
+          .alignItems(HorizontalAlign.Start);
+          Column() {
             Text('结束日期')
               .fontSize(14)
-              .textColor('#4a5568')
-              .marginBottom(8);
+              .fontColor('#4a5568')
+              .margin({ bottom: 8 });
             TextInput({
               text: this.searchParams.endDate,
               placeholder: 'YYYY-MM-DD'
@@ -305,21 +255,19 @@ struct History {
                 this.searchParams.endDate = value;
               });
           }
-          Column({
-            alignItems: ItemAlign.Start,
-            justifyContent: FlexAlign.Start
-          }) {
+          .alignItems(HorizontalAlign.Start);
+          Column() {
             Text('状态')
               .fontSize(14)
-              .textColor('#4a5568')
-              .marginBottom(8);
+              .fontColor('#4a5568')
+              .margin({ bottom: 8 });
             Row() {
               Button('全部')
                 .fontSize(12)
                 .width(60)
                 .height(32)
                 .backgroundColor(this.searchParams.status === 'all' ? '#3182ce' : '#e2e8f0')
-                .textColor(this.searchParams.status === 'all' ? '#ffffff' : '#4a5568')
+                .fontColor(this.searchParams.status === 'all' ? '#ffffff' : '#4a5568')
                 .borderRadius(6)
                 .onClick(() => {
                   this.searchParams.status = 'all';
@@ -329,9 +277,9 @@ struct History {
                 .width(60)
                 .height(32)
                 .backgroundColor(this.searchParams.status === 'pass' ? '#3182ce' : '#e2e8f0')
-                .textColor(this.searchParams.status === 'pass' ? '#ffffff' : '#4a5568')
+                .fontColor(this.searchParams.status === 'pass' ? '#ffffff' : '#4a5568')
                 .borderRadius(6)
-                .marginLeft(8)
+                .margin({ left: 8 })
                 .onClick(() => {
                   this.searchParams.status = 'pass';
                 });
@@ -340,16 +288,19 @@ struct History {
                 .width(60)
                 .height(32)
                 .backgroundColor(this.searchParams.status === 'fail' ? '#3182ce' : '#e2e8f0')
-                .textColor(this.searchParams.status === 'fail' ? '#ffffff' : '#4a5568')
+                .fontColor(this.searchParams.status === 'fail' ? '#ffffff' : '#4a5568')
                 .borderRadius(6)
-                .marginLeft(8)
+                .margin({ left: 8 })
                 .onClick(() => {
                   this.searchParams.status = 'fail';
                 });
             }
           }
+          .alignItems(HorizontalAlign.Start);
         }
-        .marginBottom(16);
+        .width('100%')
+        .justifyContent(FlexAlign.SpaceBetween)
+        .margin({ bottom: 16 });
 
         Button('搜索')
           .fontSize(14)
@@ -359,90 +310,80 @@ struct History {
           .borderRadius(8)
           .alignSelf(ItemAlign.End);
       }
+      .width('100%')
       .padding(16)
       .backgroundColor('#ffffff')
       .borderRadius(8)
       .shadow({
-        color: '#000000',
         radius: 4,
+        color: '#000000',
         offsetX: 0,
         offsetY: 2,
-        blurRadius: 8
       })
-      .marginBottom(16);
+      .margin({ bottom: 16 });
 
-      // 记录列表
       Scroll() {
-        Column({
-          alignItems: ItemAlign.Stretch,
-          justifyContent: FlexAlign.Start
-        }) {
-          // 表头
-          Row({
-            alignItems: ItemAlign.Center,
-            justifyContent: FlexAlign.SpaceBetween
-          }) {
+        Column() {
+          Row() {
             Text('时间')
               .fontSize(14)
-              .fontWeight(FontWeight.SemiBold)
-              .textColor('#1a365d')
+              .fontWeight(FontWeight.Medium)
+              .fontColor('#1a365d')
               .width('25%');
             Text('产品型号')
               .fontSize(14)
-              .fontWeight(FontWeight.SemiBold)
-              .textColor('#1a365d')
+              .fontWeight(FontWeight.Medium)
+              .fontColor('#1a365d')
               .width('20%');
             Text('能效等级')
               .fontSize(14)
-              .fontWeight(FontWeight.SemiBold)
-              .textColor('#1a365d')
+              .fontWeight(FontWeight.Medium)
+              .fontColor('#1a365d')
               .width('15%');
             Text('数据匹配')
               .fontSize(14)
-              .fontWeight(FontWeight.SemiBold)
-              .textColor('#1a365d')
+              .fontWeight(FontWeight.Medium)
+              .fontColor('#1a365d')
               .width('15%');
             Text('状态')
               .fontSize(14)
-              .fontWeight(FontWeight.SemiBold)
-              .textColor('#1a365d')
+              .fontWeight(FontWeight.Medium)
+              .fontColor('#1a365d')
               .width('15%');
             Text('操作')
               .fontSize(14)
-              .fontWeight(FontWeight.SemiBold)
-              .textColor('#1a365d')
+              .fontWeight(FontWeight.Medium)
+              .fontColor('#1a365d')
               .width('10%');
           }
+          .width('100%')
+          .justifyContent(FlexAlign.SpaceBetween)
           .padding(12)
           .backgroundColor('#f7fafc')
           .borderRadius(8);
 
-          // 记录列表
-          ForEach(this.detectionRecords, (record) => {
-            Row({
-              alignItems: ItemAlign.Center,
-              justifyContent: FlexAlign.SpaceBetween
-            }) {
+          ForEach(this.detectionRecords, (record: DetectionRecord) => {
+            Row() {
               Text(record.timestamp)
                 .fontSize(14)
-                .textColor('#4a5568')
+                .fontColor('#4a5568')
                 .width('25%');
               Text(record.productModel)
                 .fontSize(14)
-                .textColor('#4a5568')
+                .fontColor('#4a5568')
                 .width('20%');
               Text(record.energyEfficiency)
                 .fontSize(14)
-                .textColor('#4a5568')
+                .fontColor('#4a5568')
                 .width('15%');
               Text(record.isDataMatch ? '匹配' : '不匹配')
                 .fontSize(14)
-                .textColor(record.isDataMatch ? '#38a169' : '#e53e3e')
+                .fontColor(record.isDataMatch ? '#38a169' : '#e53e3e')
                 .width('15%');
               Text(record.isPass ? '通过' : '失败')
                 .fontSize(14)
-                .fontWeight(FontWeight.SemiBold)
-                .textColor(record.isPass ? '#38a169' : '#e53e3e')
+                .fontWeight(FontWeight.Medium)
+                .fontColor(record.isPass ? '#38a169' : '#e53e3e')
                 .width('15%');
               Button('查看')
                 .fontSize(12)
@@ -451,338 +392,285 @@ struct History {
                 .backgroundColor('#3182ce')
                 .borderRadius(6);
             }
+            .width('100%')
+            .justifyContent(FlexAlign.SpaceBetween)
             .padding(12)
             .backgroundColor('#ffffff')
             .borderRadius(8)
-            .marginTop(8)
+            .margin({ top: 8 })
             .shadow({
-              color: '#000000',
               radius: 2,
+              color: '#000000',
               offsetX: 0,
               offsetY: 1,
-              blurRadius: 4
             });
           });
         }
+        .width('100%')
       }
-      .flexGrow(1);
+      .layoutWeight(1);
     }
+    .width('100%')
     .padding(16);
   }
 
-  // 统计分析页面
   @Builder AnalyticsView() {
-    Column({
-      alignItems: ItemAlign.Stretch,
-      justifyContent: FlexAlign.Start
-    }) {
+    Column() {
       Text('统计分析')
         .fontSize(16)
-        .fontWeight(FontWeight.SemiBold)
-        .textColor('#1a365d')
-        .marginBottom(16);
+        .fontWeight(FontWeight.Medium)
+        .fontColor('#1a365d')
+        .margin({ bottom: 16 });
 
-      // 统计卡片
-      Row({
-        alignItems: ItemAlign.Center,
-        justifyContent: FlexAlign.SpaceBetween
-      }) {
-        Column({
-          alignItems: ItemAlign.Center,
-          justifyContent: FlexAlign.Center
-        }) {
+      Row() {
+        Column() {
           Text('总检测数')
             .fontSize(14)
-            .textColor('#4a5568')
-            .marginBottom(8);
+            .fontColor('#4a5568')
+            .margin({ bottom: 8 });
           Text('5')
             .fontSize(24)
             .fontWeight(FontWeight.Bold)
-            .textColor('#1a365d');
+            .fontColor('#1a365d');
         }
         .padding(24)
         .backgroundColor('#ffffff')
         .borderRadius(8)
         .shadow({
-          color: '#000000',
           radius: 4,
+          color: '#000000',
           offsetX: 0,
           offsetY: 2,
-          blurRadius: 8
         })
         .width('23%');
 
-        Column({
-          alignItems: ItemAlign.Center,
-          justifyContent: FlexAlign.Center
-        }) {
+        Column() {
           Text('通过数')
             .fontSize(14)
-            .textColor('#4a5568')
-            .marginBottom(8);
+            .fontColor('#4a5568')
+            .margin({ bottom: 8 });
           Text('2')
             .fontSize(24)
             .fontWeight(FontWeight.Bold)
-            .textColor('#38a169');
+            .fontColor('#38a169');
         }
         .padding(24)
         .backgroundColor('#ffffff')
         .borderRadius(8)
         .shadow({
-          color: '#000000',
           radius: 4,
+          color: '#000000',
           offsetX: 0,
           offsetY: 2,
-          blurRadius: 8
         })
         .width('23%');
 
-        Column({
-          alignItems: ItemAlign.Center,
-          justifyContent: FlexAlign.Center
-        }) {
+        Column() {
           Text('失败数')
             .fontSize(14)
-            .textColor('#4a5568')
-            .marginBottom(8);
+            .fontColor('#4a5568')
+            .margin({ bottom: 8 });
           Text('3')
             .fontSize(24)
             .fontWeight(FontWeight.Bold)
-            .textColor('#e53e3e');
+            .fontColor('#e53e3e');
         }
         .padding(24)
         .backgroundColor('#ffffff')
         .borderRadius(8)
         .shadow({
-          color: '#000000',
           radius: 4,
+          color: '#000000',
           offsetX: 0,
           offsetY: 2,
-          blurRadius: 8
         })
         .width('23%');
 
-        Column({
-          alignItems: ItemAlign.Center,
-          justifyContent: FlexAlign.Center
-        }) {
+        Column() {
           Text('通过率')
             .fontSize(14)
-            .textColor('#4a5568')
-            .marginBottom(8);
+            .fontColor('#4a5568')
+            .margin({ bottom: 8 });
           Text('40%')
             .fontSize(24)
             .fontWeight(FontWeight.Bold)
-            .textColor('#3182ce');
+            .fontColor('#3182ce');
         }
         .padding(24)
         .backgroundColor('#ffffff')
         .borderRadius(8)
         .shadow({
-          color: '#000000',
           radius: 4,
+          color: '#000000',
           offsetX: 0,
           offsetY: 2,
-          blurRadius: 8
         })
         .width('23%');
       }
-      .marginBottom(16);
+      .width('100%')
+      .justifyContent(FlexAlign.SpaceBetween)
+      .margin({ bottom: 16 });
 
-      // 缺陷统计
-      Column({
-        alignItems: ItemAlign.Stretch,
-        justifyContent: FlexAlign.Start
-      }) {
+      Column() {
         Text('缺陷统计')
           .fontSize(16)
-          .fontWeight(FontWeight.SemiBold)
-          .textColor('#1a365d')
-          .marginBottom(16);
+          .fontWeight(FontWeight.Medium)
+          .fontColor('#1a365d')
+          .margin({ bottom: 16 });
 
-        Row({
-          alignItems: ItemAlign.Center,
-          justifyContent: FlexAlign.SpaceBetween
-        }) {
-          Column({
-            alignItems: ItemAlign.Center,
-            justifyContent: FlexAlign.Center
-          }) {
+        Row() {
+          Column() {
             Text('破损')
               .fontSize(14)
-              .textColor('#4a5568')
-              .marginBottom(8);
+              .fontColor('#4a5568')
+              .margin({ bottom: 8 });
             Text('1')
               .fontSize(20)
               .fontWeight(FontWeight.Bold)
-              .textColor('#e53e3e');
+              .fontColor('#e53e3e');
           }
           .padding(20)
           .backgroundColor('#ffffff')
           .borderRadius(8)
           .shadow({
-            color: '#000000',
             radius: 4,
+            color: '#000000',
             offsetX: 0,
             offsetY: 2,
-            blurRadius: 8
           })
           .width('31%');
 
-          Column({
-            alignItems: ItemAlign.Center,
-            justifyContent: FlexAlign.Center
-          }) {
+          Column() {
             Text('污渍')
               .fontSize(14)
-              .textColor('#4a5568')
-              .marginBottom(8);
+              .fontColor('#4a5568')
+              .margin({ bottom: 8 });
             Text('1')
               .fontSize(20)
               .fontWeight(FontWeight.Bold)
-              .textColor('#e53e3e');
+              .fontColor('#e53e3e');
           }
           .padding(20)
           .backgroundColor('#ffffff')
           .borderRadius(8)
           .shadow({
-            color: '#000000',
             radius: 4,
+            color: '#000000',
             offsetX: 0,
             offsetY: 2,
-            blurRadius: 8
           })
           .width('31%');
 
-          Column({
-            alignItems: ItemAlign.Center,
-            justifyContent: FlexAlign.Center
-          }) {
+          Column() {
             Text('褶皱')
               .fontSize(14)
-              .textColor('#4a5568')
-              .marginBottom(8);
+              .fontColor('#4a5568')
+              .margin({ bottom: 8 });
             Text('0')
               .fontSize(20)
               .fontWeight(FontWeight.Bold)
-              .textColor('#38a169');
+              .fontColor('#38a169');
           }
           .padding(20)
           .backgroundColor('#ffffff')
           .borderRadius(8)
           .shadow({
-            color: '#000000',
             radius: 4,
+            color: '#000000',
             offsetX: 0,
             offsetY: 2,
-            blurRadius: 8
           })
           .width('31%');
         }
+        .width('100%')
+        .justifyContent(FlexAlign.SpaceBetween);
       }
-      .marginBottom(16);
+      .width('100%')
+      .margin({ bottom: 16 });
 
-      // 位置偏差统计
-      Column({
-        alignItems: ItemAlign.Stretch,
-        justifyContent: FlexAlign.Start
-      }) {
+      Column() {
         Text('位置偏差统计')
           .fontSize(16)
-          .fontWeight(FontWeight.SemiBold)
-          .textColor('#1a365d')
-          .marginBottom(16);
+          .fontWeight(FontWeight.Medium)
+          .fontColor('#1a365d')
+          .margin({ bottom: 16 });
 
-        Column({
-          alignItems: ItemAlign.Start,
-          justifyContent: FlexAlign.Start
-        }) {
-          Row({
-            alignItems: ItemAlign.Center,
-            justifyContent: FlexAlign.SpaceBetween
-          }) {
+        Column() {
+          Row() {
             Text('平均偏差')
               .fontSize(14)
-              .textColor('#4a5568');
+              .fontColor('#4a5568');
             Text('1.14 mm')
               .fontSize(14)
-              .fontWeight(FontWeight.SemiBold)
-              .textColor('#1a365d');
+              .fontWeight(FontWeight.Medium)
+              .fontColor('#1a365d');
           }
-          .marginBottom(8);
-          Row({
-            alignItems: ItemAlign.Center,
-            justifyContent: FlexAlign.SpaceBetween
-          }) {
+          .width('100%')
+          .justifyContent(FlexAlign.SpaceBetween)
+          .margin({ bottom: 8 });
+          Row() {
             Text('最大偏差')
               .fontSize(14)
-              .textColor('#4a5568');
+              .fontColor('#4a5568');
             Text('2.5 mm')
               .fontSize(14)
-              .fontWeight(FontWeight.SemiBold)
-              .textColor('#e53e3e');
+              .fontWeight(FontWeight.Medium)
+              .fontColor('#e53e3e');
           }
-          .marginBottom(8);
-          Row({
-            alignItems: ItemAlign.Center,
-            justifyContent: FlexAlign.SpaceBetween
-          }) {
+          .width('100%')
+          .justifyContent(FlexAlign.SpaceBetween)
+          .margin({ bottom: 8 });
+          Row() {
             Text('最小偏差')
               .fontSize(14)
-              .textColor('#4a5568');
+              .fontColor('#4a5568');
             Text('0.3 mm')
               .fontSize(14)
-              .fontWeight(FontWeight.SemiBold)
-              .textColor('#38a169');
+              .fontWeight(FontWeight.Medium)
+              .fontColor('#38a169');
           }
+          .width('100%')
+          .justifyContent(FlexAlign.SpaceBetween);
         }
+        .width('100%')
+        .alignItems(HorizontalAlign.Start)
         .padding(16)
         .backgroundColor('#ffffff')
         .borderRadius(8)
         .shadow({
-          color: '#000000',
           radius: 4,
+          color: '#000000',
           offsetX: 0,
           offsetY: 2,
-          blurRadius: 8
         });
       }
+      .width('100%');
     }
+    .width('100%')
     .padding(16);
   }
 
-  // 导出报告对话框
   @Builder ExportDialog() {
-    Column({
-      alignItems: ItemAlign.Center,
-      justifyContent: FlexAlign.Center
-    }) {
-      Column({
-        alignItems: ItemAlign.Stretch,
-        justifyContent: FlexAlign.Start
-      }) {
+    Column() {
+      Column() {
         Text('导出报告')
           .fontSize(16)
           .fontWeight(FontWeight.Bold)
-          .textColor('#1a365d')
-          .marginBottom(16);
+          .fontColor('#1a365d')
+          .margin({ bottom: 16 });
 
-        // 导出格式
-        Column({
-          alignItems: ItemAlign.Start,
-          justifyContent: FlexAlign.Start
-        }) {
+        Column() {
           Text('导出格式')
             .fontSize(14)
-            .textColor('#4a5568')
-            .marginBottom(8);
+            .fontColor('#4a5568')
+            .margin({ bottom: 8 });
           Row() {
             Button('Excel')
               .fontSize(14)
               .width(80)
               .height(32)
               .backgroundColor(this.exportFormat === 'excel' ? '#3182ce' : '#e2e8f0')
-              .textColor(this.exportFormat === 'excel' ? '#ffffff' : '#4a5568')
+              .fontColor(this.exportFormat === 'excel' ? '#ffffff' : '#4a5568')
               .borderRadius(8)
               .onClick(() => {
                 this.exportFormat = 'excel';
@@ -792,32 +680,30 @@ struct History {
               .width(80)
               .height(32)
               .backgroundColor(this.exportFormat === 'pdf' ? '#3182ce' : '#e2e8f0')
-              .textColor(this.exportFormat === 'pdf' ? '#ffffff' : '#4a5568')
+              .fontColor(this.exportFormat === 'pdf' ? '#ffffff' : '#4a5568')
               .borderRadius(8)
-              .marginLeft(12)
+              .margin({ left: 12 })
               .onClick(() => {
                 this.exportFormat = 'pdf';
               });
           }
         }
-        .marginBottom(16);
+        .width('100%')
+        .alignItems(HorizontalAlign.Start)
+        .margin({ bottom: 16 });
 
-        // 时间范围
-        Column({
-          alignItems: ItemAlign.Start,
-          justifyContent: FlexAlign.Start
-        }) {
+        Column() {
           Text('时间范围')
             .fontSize(14)
-            .textColor('#4a5568')
-            .marginBottom(8);
+            .fontColor('#4a5568')
+            .margin({ bottom: 8 });
           Row() {
             Button('今日')
               .fontSize(14)
               .width(80)
               .height(32)
               .backgroundColor(this.exportDateRange === 'today' ? '#3182ce' : '#e2e8f0')
-              .textColor(this.exportDateRange === 'today' ? '#ffffff' : '#4a5568')
+              .fontColor(this.exportDateRange === 'today' ? '#ffffff' : '#4a5568')
               .borderRadius(8)
               .onClick(() => {
                 this.exportDateRange = 'today';
@@ -827,9 +713,9 @@ struct History {
               .width(80)
               .height(32)
               .backgroundColor(this.exportDateRange === 'week' ? '#3182ce' : '#e2e8f0')
-              .textColor(this.exportDateRange === 'week' ? '#ffffff' : '#4a5568')
+              .fontColor(this.exportDateRange === 'week' ? '#ffffff' : '#4a5568')
               .borderRadius(8)
-              .marginLeft(12)
+              .margin({ left: 12 })
               .onClick(() => {
                 this.exportDateRange = 'week';
               });
@@ -838,21 +724,19 @@ struct History {
               .width(80)
               .height(32)
               .backgroundColor(this.exportDateRange === 'month' ? '#3182ce' : '#e2e8f0')
-              .textColor(this.exportDateRange === 'month' ? '#ffffff' : '#4a5568')
+              .fontColor(this.exportDateRange === 'month' ? '#ffffff' : '#4a5568')
               .borderRadius(8)
-              .marginLeft(12)
+              .margin({ left: 12 })
               .onClick(() => {
                 this.exportDateRange = 'month';
               });
           }
         }
-        .marginBottom(24);
+        .width('100%')
+        .alignItems(HorizontalAlign.Start)
+        .margin({ bottom: 24 });
 
-        // 按钮
-        Row({
-          alignItems: ItemAlign.Center,
-          justifyContent: FlexAlign.End
-        }) {
+        Row() {
           Button('取消')
             .fontSize(14)
             .width(80)
@@ -868,22 +752,22 @@ struct History {
             .height(36)
             .backgroundColor('#38a169')
             .borderRadius(8)
-            .marginLeft(12)
+            .margin({ left: 12 })
             .onClick(() => {
-              // 执行导出操作
               this.showExportDialog = false;
             });
         }
+        .width('100%')
+        .justifyContent(FlexAlign.End);
       }
       .padding(24)
       .backgroundColor('#ffffff')
       .borderRadius(12)
       .shadow({
-        color: '#000000',
         radius: 8,
+        color: '#000000',
         offsetX: 0,
         offsetY: 4,
-        blurRadius: 16
       })
       .width('80%')
       .maxWidth(400);
