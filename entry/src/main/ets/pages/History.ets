@@ -123,98 +123,102 @@ struct History {
   @State exportDateRange: string = 'today';
 
   build() {
-    Flex({
-      direction: FlexDirection.Column,
-      alignItems: ItemAlign.Stretch,
-      justifyContent: FlexAlign.Start
-    }) {
-      // 顶部导航栏
-      Row({
-        alignItems: ItemAlign.Center,
-        justifyContent: FlexAlign.SpaceBetween
-      }) {
-        Text('历史记录')
-          .fontSize(18)
-          .fontWeight(FontWeight.Bold)
-          .textColor('#1a365d');
-        Button('返回')
-          .fontSize(14)
-          .width(60)
-          .height(32)
-          .backgroundColor('#3182ce')
-          .borderRadius(8)
-          .onClick(() => {
-            router.push({
-              uri: 'pages/Index'
-            });
-          });
-      }
-      .padding(16)
-      .backgroundColor('#f7fafc');
-
-      // 标签页切换
-      Row({
-        alignItems: ItemAlign.Center,
+    Stack() {
+      Flex({
+        direction: FlexDirection.Column,
+        alignItems: ItemAlign.Stretch,
         justifyContent: FlexAlign.Start
       }) {
-        Button('检测记录')
-          .fontSize(14)
-          .width(100)
-          .height(36)
-          .backgroundColor(this.selectedTab === 'records' ? '#3182ce' : '#e2e8f0')
-          .textColor(this.selectedTab === 'records' ? '#ffffff' : '#4a5568')
-          .borderRadius(8)
-          .onClick(() => {
-            this.selectedTab = 'records';
-          });
-        Button('统计分析')
-          .fontSize(14)
-          .width(100)
-          .height(36)
-          .backgroundColor(this.selectedTab === 'analytics' ? '#3182ce' : '#e2e8f0')
-          .textColor(this.selectedTab === 'analytics' ? '#ffffff' : '#4a5568')
-          .borderRadius(8)
-          .marginLeft(12)
-          .onClick(() => {
-            this.selectedTab = 'analytics';
-          });
-      }
-      .padding(16)
-      .backgroundColor('#ffffff');
+        // 顶部导航栏
+        Row({
+          alignItems: ItemAlign.Center,
+          justifyContent: FlexAlign.SpaceBetween
+        }) {
+          Text('历史记录')
+            .fontSize(18)
+            .fontWeight(FontWeight.Bold)
+            .textColor('#1a365d');
+          Button('返回')
+            .fontSize(14)
+            .width(60)
+            .height(32)
+            .backgroundColor('#3182ce')
+            .borderRadius(8)
+            .onClick(() => {
+              router.push({
+                uri: 'pages/Index'
+              });
+            });
+        }
+        .padding(16)
+        .backgroundColor('#f7fafc');
 
-      // 内容区域
-      if (this.selectedTab === 'records') {
-        this.RecordsView();
-      } else if (this.selectedTab === 'analytics') {
-        this.AnalyticsView();
-      }
+        // 标签页切换
+        Row({
+          alignItems: ItemAlign.Center,
+          justifyContent: FlexAlign.Start
+        }) {
+          Button('检测记录')
+            .fontSize(14)
+            .width(100)
+            .height(36)
+            .backgroundColor(this.selectedTab === 'records' ? '#3182ce' : '#e2e8f0')
+            .textColor(this.selectedTab === 'records' ? '#ffffff' : '#4a5568')
+            .borderRadius(8)
+            .onClick(() => {
+              this.selectedTab = 'records';
+            });
+          Button('统计分析')
+            .fontSize(14)
+            .width(100)
+            .height(36)
+            .backgroundColor(this.selectedTab === 'analytics' ? '#3182ce' : '#e2e8f0')
+            .textColor(this.selectedTab === 'analytics' ? '#ffffff' : '#4a5568')
+            .borderRadius(8)
+            .marginLeft(12)
+            .onClick(() => {
+              this.selectedTab = 'analytics';
+            });
+        }
+        .padding(16)
+        .backgroundColor('#ffffff');
 
-      // 底部按钮
-      Row({
-        alignItems: ItemAlign.Center,
-        justifyContent: FlexAlign.End
-      }) {
-        Button('导出报告')
-          .fontSize(14)
-          .width(100)
-          .height(36)
-          .backgroundColor('#38a169')
-          .borderRadius(8)
-          .onClick(() => {
-            this.showExportDialog = true;
-          });
+        // 内容区域
+        if (this.selectedTab === 'records') {
+          this.RecordsView();
+        } else if (this.selectedTab === 'analytics') {
+          this.AnalyticsView();
+        }
+
+        // 底部按钮
+        Row({
+          alignItems: ItemAlign.Center,
+          justifyContent: FlexAlign.End
+        }) {
+          Button('导出报告')
+            .fontSize(14)
+            .width(100)
+            .height(36)
+            .backgroundColor('#38a169')
+            .borderRadius(8)
+            .onClick(() => {
+              this.showExportDialog = true;
+            });
+        }
+        .padding(16)
+        .backgroundColor('#f7fafc');
       }
-      .padding(16)
-      .backgroundColor('#f7fafc');
+      .height('100%')
+      .width('100%')
+      .backgroundColor('#edf2f7');
+
+      // 导出报告对话框
+      if (this.showExportDialog) {
+        this.ExportDialog();
+      }
     }
     .height('100%')
-    .width('100%')
-    .backgroundColor('#edf2f7');
-
-    // 导出报告对话框
-    if (this.showExportDialog) {
-      this.ExportDialog();
-    }
+    .width('100%');
   }
 
   // 检测记录页面
