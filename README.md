@@ -1,6 +1,6 @@
 # 产品能效标签与缺陷检测系统
 
-基于 OpenHarmony 6.0.2 开发的产品能效标签与缺陷检测系统，集成 YOLOv8 深度学习模型，支持手动检测与工业产线自动检测两种模式。
+基于 OpenHarmony（API 20）开发的产品能效标签与缺陷检测系统，集成 YOLOv8 深度学习模型，支持手动检测与工业产线自动检测两种模式。
 
 ## 系统功能
 
@@ -98,7 +98,7 @@ NewBeePlus/
 ## 技术栈
 
 ### 前端
-- **框架**：OpenHarmony 6.0.2 + ArkTS
+- **框架**：OpenHarmony（API 20）+ ArkTS
 - **相机**：`@ohos.multimedia.camera` + XComponent
 - **网络**：`@ohos.net.http` RESTful API
 - **导航**：`@ohos.router`
@@ -123,7 +123,7 @@ npm start
 ### 2. 运行前端
 
 1. 在 DevEco Studio 中打开项目
-2. 配置 OpenHarmony SDK 6.0.2
+2. 配置 OpenHarmony SDK（API 20）
 3. 编译并部署到目标设备
 
 ## 后端 API
