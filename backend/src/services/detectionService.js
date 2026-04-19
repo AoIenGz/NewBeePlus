@@ -1,6 +1,7 @@
 const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
+const http = require('http');
 const historyService = require('./historyService');
 const { getDb, save } = require('../db/database');
 
@@ -8,8 +9,10 @@ const { getDb, save } = require('../db/database');
 const CONFIG = {
   // conda dl_train 环境的 Python 路径
   pythonPath: 'C:\\Users\\22069\\.conda\\envs\\dl_train\\python.exe',
-  // 检测脚本路径
+  // 检测脚本路径（回退用）
   detectScript: path.join(__dirname, '..', 'python', 'detect_api.py'),
+  // 常驻检测服务地址
+  detectServerUrl: 'http://localhost:5001',
   // 临时图片保存目录
   uploadDir: path.join(__dirname, '..', '..', 'uploads'),
 };
@@ -115,11 +118,71 @@ class DetectionService {
   }
 
   /**
-   * 运行 Python 检测脚本
-   * @param {string} imagePath - 图片文件路径
-   * @returns {Promise<Object>} 检测结果
+   * 运行检测 - 优先使用常驻服务（模型已加载），失败时回退到 spawn
    */
   runDetection(imagePath) {
+    return this._runDetectionServer(imagePath)
+      .catch(() => this._runDetectionSpawn(imagePath));
+  }
+
+  /**
+   * 通过常驻检测服务（detect_server.py）进行检测
+   */
+  _runDetectionServer(imagePath) {
+    return new Promise((resolve, reject) => {
+      const postData = JSON.stringify({ image_path: imagePath });
+
+      const url = new URL(`${CONFIG.detectServerUrl}/detect`);
+      const options = {
+        hostname: url.hostname,
+        port: url.port,
+        path: url.pathname,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(postData),
+        },
+        timeout: 30000,
+      };
+
+      const req = http.request(options, (res) => {
+        let data = '';
+        res.on('data', (chunk) => { data += chunk; });
+        res.on('end', () => {
+          try {
+            const result = JSON.parse(data);
+            this.detectionResult = result;
+            if (result.success) {
+              historyService.addRecord(result);
+              console.log(`检测完成（常驻服务，${result.detectionTime || '?'}s），已存入历史记录`);
+            }
+            resolve(result);
+          } catch (e) {
+            console.error('解析常驻服务响应失败:', data.substring(0, 200));
+            reject(new Error('常驻服务响应解析失败'));
+          }
+        });
+      });
+
+      req.on('error', (err) => {
+        console.log('常驻检测服务不可用，回退到 spawn 模式');
+        reject(err);
+      });
+
+      req.on('timeout', () => {
+        req.destroy();
+        reject(new Error('常驻服务超时'));
+      });
+
+      req.write(postData);
+      req.end();
+    });
+  }
+
+  /**
+   * 回退方式：spawn 新的 Python 进程（每次重新加载模型，较慢）
+   */
+  _runDetectionSpawn(imagePath) {
     return new Promise((resolve, reject) => {
       const python = spawn(CONFIG.pythonPath, [CONFIG.detectScript, imagePath]);
 
@@ -144,16 +207,14 @@ class DetectionService {
         }
 
         try {
-          // 提取最后一行 JSON（跳过 Python 的调试输出）
           const lines = stdout.trim().split('\n');
           const jsonLine = lines[lines.length - 1];
           const result = JSON.parse(jsonLine);
 
-          // 更新缓存结果 + 自动存入历史记录
           this.detectionResult = result;
           if (result.success) {
             historyService.addRecord(result);
-            console.log('检测完成，已存入历史记录');
+            console.log('检测完成（spawn 模式），已存入历史记录');
           }
           resolve(result);
         } catch (e) {
@@ -167,7 +228,6 @@ class DetectionService {
         reject(new Error(`启动检测引擎失败: ${err.message}`));
       });
 
-      // 超时保护（60秒）
       setTimeout(() => {
         python.kill();
         reject(new Error('检测超时'));

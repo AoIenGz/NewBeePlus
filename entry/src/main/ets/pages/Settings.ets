@@ -13,6 +13,7 @@ struct Settings {
   };
   @State serverUrl: string = 'http://10.0.2.2:3000';
   @State captureInterval: number = AppStorage.get<number>('industrialCaptureInterval') || 10;
+  @State webcamServerUrl: string = AppStorage.get<string>('webcamServerUrl') || 'http://10.0.2.2:5000';
 
   build() {
     Column() {
@@ -76,6 +77,16 @@ struct Settings {
           Column() {
             Text('工业相机配置')
               .fontSize(14).fontWeight(FontWeight.Medium).fontColor('#1a365d').margin({ bottom: 12 });
+            Column() {
+              Text('网络摄像头地址').fontSize(12).fontColor('#718096').margin({ bottom: 6 });
+              TextInput({ text: this.webcamServerUrl, placeholder: 'http://IP:PORT' })
+                .width('100%').height(38).padding({ left: 10, right: 10 })
+                .backgroundColor('#f7fafc').borderRadius(8)
+                .onChange((value: string) => {
+                  this.webcamServerUrl = value;
+                  AppStorage.setOrCreate<string>('webcamServerUrl', value);
+                });
+            }.width('100%').alignItems(HorizontalAlign.Start).margin({ bottom: 12 });
             Column() {
               Text('默认拍照间隔').fontSize(12).fontColor('#718096').margin({ bottom: 8 });
               Row() {

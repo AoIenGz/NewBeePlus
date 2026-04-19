@@ -50,6 +50,7 @@ interface DetectionResult {
   isPass: boolean;
   labelFound: boolean;
   hasDefect: boolean;
+  detections: DetectionItem[];
 }
 
 interface SystemStatus {
@@ -128,9 +129,19 @@ interface AutoDetectionRecord {
   id: number;
   timestamp: string;
   imageUri: string;
+  thumbnail: string;
   result: DetectionResult | null;
   status: 'captured' | 'analyzing' | 'completed' | 'failed';
   errorMessage: string;
+}
+
+// 网络摄像头信息
+interface WebcamCameraInfo {
+  index: number;
+  name: string;
+  resolution: string;
+  fps: number;
+  backend: string;
 }
 
 export {
@@ -149,5 +160,6 @@ export {
   DetectionMode,
   IndustrialCameraConfig,
   DetectionSessionStats,
-  AutoDetectionRecord
+  AutoDetectionRecord,
+  WebcamCameraInfo
 }

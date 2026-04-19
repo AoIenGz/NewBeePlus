@@ -81,6 +81,36 @@ struct History {
     this.loadStats();
   }
 
+  async deleteRecord(id: string) {
+    try {
+      const httpRequest = http.createHttp();
+      await httpRequest.request(`${BASE_URL}/history/${id}`, {
+        method: http.RequestMethod.DELETE,
+        header: { 'Content-Type': 'application/json' },
+      });
+      httpRequest.destroy();
+      this.loadRecords();
+      this.loadStats();
+    } catch (err) {
+      console.error('删除记录失败:', err);
+    }
+  }
+
+  async deleteAllRecords() {
+    try {
+      const httpRequest = http.createHttp();
+      await httpRequest.request(`${BASE_URL}/history`, {
+        method: http.RequestMethod.DELETE,
+        header: { 'Content-Type': 'application/json' },
+      });
+      httpRequest.destroy();
+      this.detectionRecords = [];
+      this.loadStats();
+    } catch (err) {
+      console.error('清空记录失败:', err);
+    }
+  }
+
   build() {
     Stack() {
       Column() {
@@ -189,6 +219,10 @@ struct History {
         Button('搜索').fontSize(14).fontColor('#ffffff').width('100%').height(36)
           .backgroundColor('#3182ce').borderRadius(8)
           .onClick(() => { this.handleSearch(); });
+
+        Button('清空所有记录').fontSize(12).fontColor('#e53e3e').width('100%').height(32)
+          .backgroundColor('#fff5f5').borderRadius(8).margin({ top: 8 })
+          .onClick(() => { this.deleteAllRecords(); });
       }.width('100%').padding(12).backgroundColor('#ffffff').borderRadius(10).margin({ bottom: 10 });
 
       // 记录列表
@@ -232,12 +266,15 @@ struct History {
                   Text('褶皱').fontSize(11).fontColor('#e53e3e')
                     .backgroundColor('#fed7d7').padding({ left: 6, right: 6, top: 2, bottom: 2 }).borderRadius(4);
                 }
+                Blank().layoutWeight(1);
+                Text('删除').fontSize(11).fontColor('#e53e3e')
+                  .onClick(() => { this.deleteRecord(record.id); });
               }.width('100%');
             }.width('100%').padding(12).backgroundColor('#ffffff').borderRadius(10).margin({ bottom: 8 });
           }, (record: DetectionRecord) => record.id);
         }.width('100%');
       }.layoutWeight(1);
-    }.width('100%').padding(12);
+    }.width('100%').padding(12).layoutWeight(1);
   }
 
   @Builder AnalyticsView() {

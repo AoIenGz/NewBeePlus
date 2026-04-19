@@ -46,4 +46,24 @@ router.get('/export/csv', (req, res) => {
   }
 });
 
+// 删除单条记录
+router.delete('/:id', (req, res) => {
+  try {
+    historyService.deleteRecord(req.params.id);
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 清空所有记录
+router.delete('/', (req, res) => {
+  try {
+    historyService.deleteAllRecords();
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

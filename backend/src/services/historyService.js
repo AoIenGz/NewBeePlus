@@ -97,6 +97,18 @@ class HistoryService {
     throw new Error('记录未找到');
   }
 
+  deleteRecord(id) {
+    const db = getDb();
+    db.run('DELETE FROM detection_records WHERE id = ?', [id]);
+    save();
+  }
+
+  deleteAllRecords() {
+    const db = getDb();
+    db.run('DELETE FROM detection_records');
+    save();
+  }
+
   getStats() {
     const db = getDb();
     const totalRs = db.exec('SELECT COUNT(*) as cnt FROM detection_records');

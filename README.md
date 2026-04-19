@@ -13,8 +13,9 @@
 - **测试图片**：加载内置测试图片验证检测效果
 
 #### 产线模式（工业相机）
-接入工业相机实现流水线自动检测：
+接入工业相机或网络摄像头实现流水线自动检测：
 - **自动拍照**：按设定时间间隔（5s/10s/30s/60s）自动捕获标签图像
+- **网络摄像头**：支持通过 HTTP 接入网络摄像头实时预览和拍照
 - **自动分析**：每次拍照后自动调用后端进行检测分析
 - **实时统计**：显示检测总数、通过率、缺陷统计、平均耗时、运行时长
 - **开始/暂停/结束**：灵活控制检测流程
@@ -48,7 +49,9 @@ MyGo/
 │   │   ├── db/                # 数据库模块（sql.js SQLite）
 │   │   ├── services/          # 业务逻辑
 │   │   ├── python/            # Python ML 检测引擎
-│   │   │   ├── detect_api.py  # YOLO + 颜色分析 + OCR
+│   │   │   ├── detect_api.py  # YOLO + 颜色分析 + OCR（回退模式）
+│   │   │   ├── detect_server.py # 常驻检测服务（模型预加载，推荐）
+│   │   │   ├── webcam_server.py # 网络摄像头流服务
 │   │   │   └── best.pt        # YOLO 模型权重
 │   │   └── server.js          # 服务器入口
 │   ├── data/                  # 数据库文件目录
@@ -63,6 +66,10 @@ MyGo/
 1. **YOLO 目标检测**：检测标签位置和缺陷类型（破损/污渍/褶皱）
 2. **颜色分析**：基于 HSV 色彩空间识别能效等级（87% 准确率）
 3. **OCR 识别**：PaddleOCR 提取能效参数和待机功率，辅助等级判定
+
+检测服务支持两种运行模式：
+- **常驻服务模式（推荐）**：通过 `detect_server.py` 启动 HTTP 服务（端口 5001），模型预加载，响应更快
+- **Spawn 回退模式**：每次检测启动新 Python 进程，无需额外部署，但较慢
 
 ## 测试图片
 
@@ -90,11 +97,13 @@ MyGo/
 ### 设置页面（Settings.ets）
 - 检测参数配置（精度、速度、阈值）
 - 服务器地址配置
+- 网络摄像头地址配置
 - 工业相机默认拍照间隔配置
 
 ### 历史记录页面（History.ets）
 - 检测记录查询（按型号、日期、状态过滤）
 - 统计分析（通过率、缺陷统计、位置偏差）
+- 记录管理（单条删除、一键清空）
 - CSV 报告导出
 
 ## 技术栈
@@ -123,6 +132,17 @@ npm start
 
 后端运行在 `http://localhost:3000`，需要 Python 环境及 YOLO 模型文件。数据库文件自动生成在 `backend/data/detection.db`。
 
+可选启动常驻检测服务（推荐，检测更快）：
+```bash
+cd backend/src/python
+python detect_server.py
+```
+
+可选启动网络摄像头服务：
+```bash
+python webcam_server.py
+```
+
 ### 2. 运行前端
 
 1. 在 DevEco Studio 中打开项目
@@ -137,6 +157,8 @@ npm start
 | GET | `/api/detection/result` | 获取最新检测结果 |
 | GET | `/api/history` | 获取检测记录 |
 | GET | `/api/history/stats` | 获取统计数据 |
+| DELETE | `/api/history/:id` | 删除单条记录 |
+| DELETE | `/api/history` | 清空所有记录 |
 | GET | `/api/history/export/csv` | 导出 CSV |
 | GET | `/api/products` | 产品管理 |
 | GET | `/health` | 健康检查 |
